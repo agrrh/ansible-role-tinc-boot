@@ -8,13 +8,12 @@
     state: directory
   register: "buffer"
 - name: "fetch nodes keys from {{ item }} to local buffer"
-  copy:
+  synchronize:
+    mode: pull
     src: "{{ tinc_net_dir }}/hosts/"
     dest: "{{ buffer.path }}/"
-    remote_src: yes
 - name: "copy {{ item }} keys to {{ ansible_hostname }}"
   copy:
-    mode: push
     src: "{{ buffer.path }}/"
     dest: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/"
 - name: "detect public nodes"
@@ -33,8 +32,8 @@
     state: absent
     path: "{{ buffer.path }}"
 - name: "push own key to {{ item }}"
-  copy:
+  synchronize:
+    mode: push
     src: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/{{ tinc_boot_name }}"
     dest: "{{ tinc_net_dir }}/hosts/{{ tinc_boot_name }}"
-    mode: a+x
   delegate_to: "{{ item }}"

@@ -63,6 +63,11 @@ Join to existent network (role - 'tinc'):
       vars:
         tinc_boot_entry_group: tinc
 
+How to test
+-----------
+
+By vagrant `vagrant up`
+
 License
 -------
 
