@@ -7,13 +7,12 @@
     suffix: keys
     state: directory
   register: "buffer"
-- name: "copy nodes keys from {{ item }} to local buffer"
-  synchronize:
-    mode: pull
+- name: "fetch nodes keys from {{ item }} to local buffer"
+  fetch:
     src: "{{ tinc_net_dir }}/hosts/"
     dest: "{{ buffer.path }}/"
 - name: "copy {{ item }} keys to {{ ansible_hostname }}"
-  synchronize:
+  copy:
     mode: push
     src: "{{ buffer.path }}/"
     dest: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/"

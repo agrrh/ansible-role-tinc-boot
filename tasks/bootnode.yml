@@ -1,11 +1,11 @@
 - name: "copy keys and certs"
   block:
     - name: "copy key"
-      synchronize:
+      copy:
         src: "{{ tinc_boot_tls_key }}"
         dest: "{{ tinc_boot_certs_location }}/boot.key"
     - name: "copy cert"
-      synchronize:
+      copy:
         src: "{{ tinc_boot_tls_cert }}"
         dest: "{{ tinc_boot_certs_location }}/boot.crt"
   when: (tinc_boot_tls_key | length ) and ( tinc_boot_tls_cert | length)
