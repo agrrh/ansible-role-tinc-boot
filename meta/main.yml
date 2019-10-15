@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Baryshnikoc Aleksandr
+  description: Full mesh VPN without pain
+  issue_tracker_url: https://github.com/reddec/ansible-role-tinc-boot/issues
+  license: MPL-2.0
+  role_name: tinc_boot
+  min_ansible_version: 2.4
+  platforms:
+  - name: Ubuntu
+    versions:
+      - bionic
+  - name: Debian
+    versions:
+      - buster
+  - name: ArchLinux
+    versions:
+      - all
+
+  galaxy_tags: 
+    - networking
+    - system
+    - encryption
+    - vpn
+    - tinc
+    - tinc-boot  

@@ -1,0 +1,30 @@
+- name: "copy keys and certs"
+  block:
+    - synchronize:
+        src: "{{tinc_boot_tls_key}}"
+        dest: "{{tinc_boot_certs_location}}/boot.key"
+    - synchronize:
+        src: "{{tinc_boot_tls_cert}}"
+        dest: "{{tinc_boot_certs_location}}/boot.crt"
+  when: tinc_boot_tls_key != '' and tinc_boot_tls_cert != ''
+- name: "create tinc-boot boot node"
+  command: >
+    {{tinc_boot_bin_dir}}/tinc-boot bootnode
+    --dir "{{tinc_boot_tinc_dir}}/{{tinc_boot_network}}"
+    --name {{tinc_boot_name}}
+    --token "{{tinc_boot_token}}"
+    --binding "{{tinc_boot_binding}}"
+    {%if tinc_boot_bootnode is defined%}
+    --tls-key "{{tinc_boot_certs_location}}/boot.key"
+    --tls-cert "{{tinc_boot_certs_location}}/boot.crt"
+    {%endif%}
+    --service
+  args:
+    creates: "/etc/systemd/system/tinc-boot-{{tinc_boot_network}}.service"
+- debug:
+    msg: "Access token to bootnode: {{tinc_boot_token}}"
+- name: "enable bootnode service"
+  systemd:
+    name: "tinc-boot-{{tinc_boot_network}}"
+    state: started
+    enabled: yes

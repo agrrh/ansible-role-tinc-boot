@@ -1,0 +1,6 @@
+- name: "install dependencies for debian"
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - tinc
