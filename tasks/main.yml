@@ -2,8 +2,8 @@
 - name: "set tinc-boot arch and names"
   set_fact:
     tinc_boot_arch: "{{ tinc_boot_archs.get(ansible_architecture, ansible_architecture) }}"
-    tinc_boot_name: "{{ tinc_boot_name | regex_replace('[^a-z0-9]+')}}"
-    tinc_boot_network: "{{ tinc_boot_network | regex_replace('[^a-z0-9]+')}}"
+    tinc_boot_name: "{{ tinc_boot_name | regex_replace('[^a-z0-9]+') }}"
+    tinc_boot_network: "{{ tinc_boot_network | regex_replace('[^a-z0-9]+') }}"
     tinc_boot_public_address: "{{ tinc_boot_address or ansible_default_ipv4.address }}"
 - name: "create bin dir"
   file:

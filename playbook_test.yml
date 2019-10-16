@@ -10,7 +10,7 @@
         msg: "{{ groups['private'] }}"
 # --- apply role
 - hosts: public
-  roles: 
+  roles:
     - role: '{{ playbook_dir }}'
   vars:
     tinc_boot_public: yes
@@ -19,7 +19,7 @@
 - hosts: private
   vars:
     tinc_boot_entry_group: 'public'
-  roles: 
+  roles:
     - role: '{{ playbook_dir }}'
 # --- test connectivity
 - hosts: all
