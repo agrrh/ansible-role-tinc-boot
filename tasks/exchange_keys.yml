@@ -1,22 +1,36 @@
 # {{item}} is an entrynode ansible host
 - name: "detect remote host tinc configuration directory"
   set_fact:
-    tinc_net_dir: "{{ hostvars[item].get('tinc_boot_tinc_dir', '/etc/tinc') }}/{{ hostvars[item].get('tinc_boot_network', tinc_boot_network) }}"
+    tinc_net_dir: "{{ hostvars[item].get('tinc_boot_tinc_dir', '/etc/tinc') }}/
+    {{ hostvars[item].get('tinc_boot_network', tinc_boot_network) | regex_replace('[^a-z0-9]+') }}"
+    node_name: "{{ hostvars[item].get('tinc_boot_name', item) | regex_replace('[^a-z0-9]+') }}"
 - name: "create buffer for keys"
   tempfile:
     suffix: keys
     state: directory
   register: "buffer"
-- name: "copy nodes keys from {{ item }} to local buffer"
-  synchronize:
-    mode: pull
-    src: "{{ tinc_net_dir }}/hosts/"
+- name: "fetch node file from {{ item }} to local buffer"
+  fetch:
+    flat: yes
+    src: "{{ tinc_net_dir }}/hosts/{{ node_name }}"
     dest: "{{ buffer.path }}/"
-- name: "copy {{ item }} keys to {{ ansible_hostname }}"
-  synchronize:
-    mode: push
-    src: "{{ buffer.path }}/"
+  delegate_to: "{{ item }}"
+- name: "add host key"
+  fetch:
+    flat: yes
+    src: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/{{ tinc_boot_name }}"
+    dest: "{{ buffer.path }}/"
+- name: "copy {{ item }} public key to {{ ansible_hostname }}"
+  copy:
+    mode: a+x
+    src: "{{ buffer.path }}/{{ node_name }}"
     dest: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/"
+- name: "copy {{ ansible_hostname }} public key to {{ item }}"
+  copy:
+    mode: a+x
+    src: "{{ buffer.path }}/{{ tinc_boot_name }}"
+    dest: "{{ tinc_net_dir }}/hosts/"
+  delegate_to: "{{ item }}"
 - name: "detect public nodes"
   find:
     paths: "{{ buffer.path }}"
@@ -32,9 +46,3 @@
   file:
     state: absent
     path: "{{ buffer.path }}"
-- name: "push own key to {{ item }}"
-  copy:
-    src: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}/hosts/{{ tinc_boot_name }}"
-    dest: "{{ tinc_net_dir }}/hosts/{{ tinc_boot_name }}"
-    mode: a+x
-  delegate_to: "{{ item }}"

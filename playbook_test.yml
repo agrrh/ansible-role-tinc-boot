@@ -1,0 +1,32 @@
+- hosts: public
+  tasks:
+    - name: "hosts in public"
+      debug:
+        msg: "{{ groups['public'] }}"
+- hosts: private
+  tasks:
+    - name: "hosts in private"
+      debug:
+        msg: "{{ groups['private'] }}"
+# --- apply role
+- hosts: public
+  roles:
+    - role: '{{ playbook_dir }}'
+  vars:
+    tinc_boot_public: yes
+    tinc_boot_address: "{{ ansible_eth1.ipv4.address }}"
+    tinc_boot_entry_group: 'public'
+- hosts: private
+  vars:
+    tinc_boot_entry_group: 'public'
+  roles:
+    - role: '{{ playbook_dir }}'
+# --- test connectivity
+- hosts: all
+  tasks:
+    - name: "let tinc settle"
+      pause:
+        minutes: 1
+    - name: "ping all other nodes"
+      command: "ping -c 3 {{ hostvars[item].ansible_dnet.ipv4.address }}"
+      with_items: "{{ groups['all'] }}"
