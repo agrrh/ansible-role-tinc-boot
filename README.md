@@ -46,9 +46,7 @@ Public node:
       roles:
          - tinc_boot
       vars:
-        tinc_boot_public:
-          - 11.22.33.44
-          - 55.66.77.88
+        tinc_boot_public: yes
 
 Private node:
 
