@@ -14,8 +14,10 @@ tinc_boot_name: "{{ ansible_hostname }}"
 tinc_boot_mask: 16
 # IP address prefix (should be same in mask)
 tinc_boot_prefix: 172.173
-# public node addresses
-tinc_boot_public: []
+# is node public. If yes - will be used tinc_boot_address or ansible_default_ipv4
+tinc_boot_public: no
+# custom node public address
+tinc_boot_address : ''
 # enable tinc service?
 tinc_boot_services: yes
 
