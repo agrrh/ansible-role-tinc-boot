@@ -1,6 +1,8 @@
-- name: "install dependencies for ubuntu"
+---
+
+- name: Install dependencies for ubuntu
   apt:
     name: "{{ packages }}"
   vars:
     packages:
-    - tinc
+      - tinc

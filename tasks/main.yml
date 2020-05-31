@@ -1,23 +1,25 @@
 ---
-- name: "set tinc-boot arch and names"
+
+- name: Set tinc-boot arch and names
   set_fact:
     tinc_boot_arch: "{{ tinc_boot_archs.get(ansible_architecture, ansible_architecture) }}"
     tinc_boot_name: "{{ tinc_boot_name | regex_replace('[^a-z0-9]+') }}"
     tinc_boot_network: "{{ tinc_boot_network | regex_replace('[^a-z0-9]+') }}"
     tinc_boot_public_address: "{{ tinc_boot_address or ansible_default_ipv4.address }}"
-- name: "create bin dir"
+
+- name: Create bin dir
   file:
     state: directory
     path: "{{ tinc_boot_bin_dir }}"
 
-- name: "install dependencies"
+- name: Install dependencies
   include_tasks: "{{ item }}"
   with_first_found:
     - "deps_{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
     - "deps_{{ ansible_distribution | lower }}.yml"
     - "deps.yml"
 
-- name: "install tinc-boot"
+- name: Install tinc-boot
   unarchive:
     dest: "{{ tinc_boot_bin_dir }}"
     mode: a+x
@@ -25,33 +27,37 @@
     src: "https://github.com/reddec/tinc-boot/releases/latest/download/tinc-boot_linux_{{ tinc_boot_arch }}.tar.gz"
     remote_src: yes
     extra_opts:
-    - tinc-boot
-- name: "create tinc-boot network"
-  command: >
+      - tinc-boot
+
+- name: Create tinc-boot network
+  command: >-
     {{ tinc_boot_bin_dir }}/tinc-boot gen
-    --dir "{{ tinc_boot_tinc_dir }}"
-    --name {{ tinc_boot_name }}
-    --network {{ tinc_boot_network }}
-    --standalone
-    --no-bin-copy
-    --bin {{ tinc_boot_bin_dir }}/tinc-boot
-    --port {{ tinc_boot_port }}
-    --mask {{ tinc_boot_mask }}
-    --prefix {{ tinc_boot_prefix }}
-    {%if tinc_boot_public%}--public {{ tinc_boot_public_address }}{%endif%}
+      --dir "{{ tinc_boot_tinc_dir }}"
+      --name {{ tinc_boot_name }}
+      --network {{ tinc_boot_network }}
+      --standalone
+      --no-bin-copy
+      --bin {{ tinc_boot_bin_dir }}/tinc-boot
+      --port {{ tinc_boot_port }}
+      --mask {{ tinc_boot_mask }}
+      --prefix {{ tinc_boot_prefix }}
+      {%if tinc_boot_public%}--public {{ tinc_boot_public_address }}{%endif%}
   args:
      creates: "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}"
-- name: "exchange keys with entry nodes {{ tinc_boot_entry_group }}"
+
+- name: "Exchange keys with entry nodes {{ tinc_boot_entry_group }}"
   include_tasks: exchange_keys.yml
   with_items: "{{ groups[tinc_boot_entry_group] }}"
-  when: "tinc_boot_entry_group | length"
-- name: "enabling services"
+  when: tinc_boot_entry_group | length
+
+- name: Enabling services
   include_tasks: "{{ item }}"
   with_first_found:
     - "service_{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
     - "service_{{ ansible_distribution | lower }}.yml"
     - "service.yml"
   when: tinc_boot_services
-- name: "create bootnode"
+
+- name: Create bootnode
   include_tasks: bootnode.yml
   when: tinc_boot_bootnode

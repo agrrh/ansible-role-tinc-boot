@@ -1,6 +1,8 @@
-- name: "install dependencies for arch-based systems"
+---
+
+- name: Install dependencies for arch-based systems
   pacman:
     name: "{{ packages }}"
   vars:
     packages:
-    - tinc
+      - tinc

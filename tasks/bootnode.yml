@@ -1,32 +1,38 @@
-- name: "copy keys and certs"
+---
+
+- name: Copy keys and certs
   block:
-    - name: "copy key"
+    - name: Copy key
       copy:
         src: "{{ tinc_boot_tls_key }}"
         dest: "{{ tinc_boot_certs_location }}/boot.key"
-    - name: "copy cert"
+
+    - name: Copy cert
       copy:
         src: "{{ tinc_boot_tls_cert }}"
         dest: "{{ tinc_boot_certs_location }}/boot.crt"
-  when: (tinc_boot_tls_key | length ) and ( tinc_boot_tls_cert | length)
-- name: "create tinc-boot boot node"
-  command: >
+  when: (tinc_boot_tls_key | length) and (tinc_boot_tls_cert | length)
+
+- name: Create tinc-boot boot node
+  command: >-
     {{ tinc_boot_bin_dir }}/tinc-boot bootnode
-    --dir "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}"
-    --name {{ tinc_boot_name }}
-    --token "{{ tinc_boot_token }}"
-    --binding "{{ tinc_boot_binding }}"
-    {%if tinc_boot_bootnode is defined%}
-    --tls-key "{{ tinc_boot_certs_location }}/boot.key"
-    --tls-cert "{{ tinc_boot_certs_location }}/boot.crt"
-    {%endif%}
-    --service
+      --dir "{{ tinc_boot_tinc_dir }}/{{ tinc_boot_network }}"
+      --name {{ tinc_boot_name }}
+      --token "{{ tinc_boot_token }}"
+      --binding "{{ tinc_boot_binding }}"
+      {% if tinc_boot_bootnode is defined %}
+      --tls-key "{{ tinc_boot_certs_location }}/boot.key"
+      --tls-cert "{{ tinc_boot_certs_location }}/boot.crt"
+      {% endif %}
+      --service
   args:
     creates: "/etc/systemd/system/tinc-boot-{{ tinc_boot_network }}.service"
-- name: "fetch boot token"
+
+- name: Fetch boot token
   debug:
     msg: "Access token to bootnode: {{ tinc_boot_token }}"
-- name: "enable bootnode service"
+
+- name: Enable bootnode service
   systemd:
     name: "tinc-boot-{{ tinc_boot_network }}"
     state: started

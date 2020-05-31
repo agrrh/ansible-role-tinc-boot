@@ -1,6 +1,8 @@
-- name: "enable tinc service"
+---
+
+- name: Enable tinc service
   systemd:
     name: "tinc@{{ tinc_boot_network }}"
     state: restarted
-    enabled: yes
+    enabled: true
   when: tinc_boot_services
