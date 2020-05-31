@@ -4,8 +4,7 @@
 - name: Detect remote host tinc configuration directory
   set_fact:
     tinc_net_dir: >-
-      {{ hostvars[item].get('tinc_boot_tinc_dir', '/etc/tinc') }}/
-      {{ hostvars[item].get('tinc_boot_network', tinc_boot_network) | regex_replace('[^a-z0-9]+') }}
+      {{ hostvars[item].get('tinc_boot_tinc_dir', '/etc/tinc') }}/{{ hostvars[item].get('tinc_boot_network', tinc_boot_network) | regex_replace('[^a-z0-9]+') }}
     node_name: "{{ hostvars[item].get('tinc_boot_name', item) | regex_replace('[^a-z0-9]+') }}"
 
 - name: Create buffer for keys
